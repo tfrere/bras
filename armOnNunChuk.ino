@@ -159,40 +159,40 @@ Servo servomoteur1, servomoteur2, servomoteur3;
 int posMoteur1 = 90, posMoteur2 = 90, posMoteur3 = 90;
 int mode=0;
 int sensibility=1;
-int	count=0;
+int count=0;
 int countPerRev=512;
 int lookUp[8] = { B01000, B01100, B00100, B00110, B00010, B00011, B00001, B01001 };
 
 void mode_joystick(int a, int b){
  
-    if(a < -50){ // gauche
+    if(a < -50){ // gauche joystick
       if(posMoteur1 > 10){
         posMoteur1 += sensibility*a/50;
-				posMoteur1 = posMoteur1 < 10 ? 10 : posMoteur1;
+        posMoteur1 = posMoteur1 < 10 ? 10 : posMoteur1;
         servomoteur1.write(180-posMoteur1);
       }
     }
 
-    if(a > 50){ //droite
+    if(a > 50){ //droite joystick
       if(posMoteur1 < 170){
         posMoteur1 += sensibility*a/50;
-				posMoteur1 = posMoteur1 > 170 ? 170 : posMoteur1;
+        posMoteur1 = posMoteur1 > 170 ? 170 : posMoteur1;
         servomoteur1.write(180-posMoteur1);
       }
     }
 
     if(b > 50){ //haut
-      if(posMoteur2 < 170){
+      if(posMoteur2 < 140){
         posMoteur2 += sensibility*b/50;
-				posMoteur2 = posMoteur2 > 170 ? 170 : posMoteur2;
+        posMoteur2 = posMoteur2 > 140 ? 140 : posMoteur2;
         servomoteur2.write(posMoteur2);
       }
     }
 
     if(b < -50){ //bas
-      if(posMoteur2 > 10){
+      if(posMoteur2 > 40){
         posMoteur2 += sensibility*b/50;
-				posMoteur2 = posMoteur2 < 10 ? 10 : posMoteur2;
+        posMoteur2 = posMoteur2 < 40 ? 40 : posMoteur2;
         servomoteur2.write(posMoteur2);
       }
     }
@@ -200,37 +200,37 @@ void mode_joystick(int a, int b){
 
 void  activateClaw() {
     posMoteur3 += 1;
-    if (posMoteur3 > 170)
-      posMoteur3 = 170;
+    if (posMoteur3 > 140)
+      posMoteur3 = 140;
     servomoteur3.write(posMoteur3);
 }
 
 
-void	setOutput(int out) {
-	digitalWrite(STP1, bitRead(lookUp[out], 0));
-	digitalWrite(STP2, bitRead(lookUp[out], 1));
-	digitalWrite(STP3, bitRead(lookUp[out], 2));
-	digitalWrite(STP4, bitRead(lookUp[out], 3));
+void  setOutput(int out) {
+  digitalWrite(STP1, bitRead(lookUp[out], 0));
+  digitalWrite(STP2, bitRead(lookUp[out], 1));
+  digitalWrite(STP3, bitRead(lookUp[out], 2));
+  digitalWrite(STP4, bitRead(lookUp[out], 3));
 }
 
-void	clockwise() {
-	if (count < 90) {
-		for (int i=0; i < 8; ++i) {
-			setOutput(i);
-			delayMicroseconds(STP_SPEED);
-		}
-		count++;
-	}
+void  clockwise() {
+  if (count < 90) {
+    for (int i=0; i < 8; ++i) {
+      setOutput(i);
+      delayMicroseconds(STP_SPEED);
+    }
+    count++;
+  }
 }
 
-void	counterclockwise() {
-	if (count > -90) {
-		for (int i=7; i >= 0; --i) {
-			setOutput(i);
-			delayMicroseconds(STP_SPEED);
-		}
-		count--;
-	}
+void  counterclockwise() {
+  if (count > -300) {
+    for (int i=7; i >= 0; --i) {
+      setOutput(i);
+      delayMicroseconds(STP_SPEED);
+    }
+    count--;
+  }
 }
 
 void setup()
@@ -245,10 +245,10 @@ void setup()
   servomoteur2.write(90);
   servomoteur3.write(90);
 
-	pinMode(STP1, OUTPUT);
-	pinMode(STP2, OUTPUT);
-	pinMode(STP3, OUTPUT);
-	pinMode(STP4, OUTPUT);
+  pinMode(STP1, OUTPUT);
+  pinMode(STP2, OUTPUT);
+  pinMode(STP3, OUTPUT);
+  pinMode(STP4, OUTPUT);
 
   chuck.begin();
 }
@@ -257,8 +257,14 @@ void loop()
 {
   chuck.update(); // on actualise les donnÃ©es du nunchuk
 
+  digitalWrite(32, LOW);
+  digitalWrite(34, LOW);
+
   if(chuck.zPressed())  // on remet les moteurs à la position de départ
   {
+  
+    digitalWrite(32, HIGH);
+    digitalWrite(34, HIGH);
     //posMoteur1 = 90;
     //posMoteur2 = 90;
     //posMoteur3 = 90;
@@ -273,25 +279,25 @@ void loop()
       servomoteur3.write(posMoteur3);
   }
 
-	int a = chuck.readJoyX();
-	int b = chuck.readJoyY();
-	int zVel = chuck.readAccelZ();
+  int a = chuck.readJoyX();
+  int b = chuck.readJoyY();
+  int zVel = chuck.readAccelZ();
 
-	if(chuck.cPressed())
-	{
-		zVel = constrain(zVel, -180, 180);
-		zVel = map(zVel, -180, 180, 0, 180);
-		if (zVel > 90)
-			clockwise();
-		else
-			counterclockwise();
-		mode_joystick(a, b);
-	}
-	else {
-		mode_joystick(a, b);
-		delayMicroseconds(2500);
-	}
-	
+  if(chuck.cPressed())
+  {
+    zVel = constrain(zVel, -180, 180);
+    zVel = map(zVel, -180, 180, 0, 180);
+    if (zVel > 90)
+      clockwise();
+    else
+      counterclockwise();
+    mode_joystick(a, b);
+  }
+  else {
+    mode_joystick(a, b);
+    delayMicroseconds(2500);
+  }
+  
 
   
   //un petit delai d'attente pour ne pas saturer des servomoteurs
