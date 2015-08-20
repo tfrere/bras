@@ -4,56 +4,58 @@ var five = require('johnny-five'),
     board = new five.Board(),
     LeapFrame = require('./lib/leapFrame'),
     Joint = require('./lib/joint'),
-    frame,
-    i=0;
+    frame, i = 0;
 
 board.on('ready', function() {
 
-  var headBulb = new Joint({
-    // frame.deltaHandFinger.x tracked range
-    minPos: -60,
-    maxPos: 30,
-    pin: 9,
-    range: [60,175]
-  });
-
-  var headNod = new Joint({
-    // frame.deltaHandFinger.y tracked range
+  var finger1 = new Joint({
     minPos: 0,
-    maxPos: 50,
+    maxPos: 180,
     pin: 10,
-    range: [70,170]
+    range: [0,180]
   });
 
-  var middle = new Joint({
-    // frame.palmPosition.y tracked range
-    minPos: 70,
-    maxPos: 220,
+  var finger2 = new Joint({
+    minPos: 0,
+    maxPos: 180,
+    pin: 5,
+    range: [0,180]
+  });
+
+  var finger3 = new Joint({
+    minPos: 0,
+    maxPos: 180,
+    pin: 3,
+    range: [0,180]
+  });
+
+  var finger4 = new Joint({
+    minPos: 0,
+    maxPos: 180,
     pin: 6,
-    range: [60,150]
+    range: [0,180]
   });
 
-  // var basis = new Joint({
-  //   // frame.palmPosition.x tracked range
-  //   minPos: 50,
-  //   maxPos: 200,
-  //   pin: 6,
-  //   range: [10,170]
-  // });
-
+  var finger5 = new Joint({
+    minPos: 0,
+    maxPos: 180,
+    pin: 9,
+    range: [0,180]
+  });
 
   ws.on('message', function(data, flags) {
     i++;
-    // track only 40frame/s
+    // track only 40frame / s
     if (i%3 === 0) {
       frame = new LeapFrame(data);
       if(frame.valid) {
-        headNod.move(frame.deltaHandFinger.y);
-        headBulb.move(frame.deltaHandFinger.x);
-        middle.move(frame.palmPosition.y);
-        // basis.move(frame.palmPosition.x);
+          finger1.move(Math.round(frame.fingerAngleX[0]));
+          finger2.move(Math.round(frame.fingerAngleX[1]));
+          finger3.move(Math.round(frame.fingerAngleX[2]));
+          finger4.move(Math.round(frame.fingerAngleX[3]));
+          finger5.move(Math.round(frame.fingerAngleX[4]));
       }
-      i=0;
+      i = 0;
     }
   });
 });

@@ -7,7 +7,7 @@ var LeapFrame = function(data) {
 	 * @return true if so, false else
 	 */
 	var _isValid = function(frame) {
-		if (frame.pointables && frame.pointables.length === 1) {
+		if (frame.pointables && frame.pointables.length > 0) {
 			var pointableId = frame.pointables[0].handId;
 			if (frame.hands && frame.hands[0]) {
 				var handId = frame.hands[0].id;
@@ -18,6 +18,18 @@ var LeapFrame = function(data) {
 		}
 		return false;
 	};
+
+	/**
+	 * Check if fingers are present
+	 * @return true if so, false else
+	 */
+	var _isValidFinger = function(frame) {
+		if (frame.fingers && frame.fingers.length === 4) {
+			return true;
+		}
+		return false;
+	};
+
 
 	/**
 	 * Calculate the angle between 2 vectors in degrees
@@ -57,48 +69,52 @@ var LeapFrame = function(data) {
 		};
 	};
 
-	var _fingerPosition = function(frame) {
+	var _fingerPosition = function(frame, fingerIndex) {
 		return {
-			x : frame.pointables[0].tipPosition[0],
-			y : frame.pointables[0].tipPosition[1],
-			z : frame.pointables[0].tipPosition[2]
+			x : frame.pointables[fingerIndex].tipPosition[0],
+			y : frame.pointables[fingerIndex].tipPosition[1],
+			z : frame.pointables[fingerIndex].tipPosition[2]
 		};
 	};
 
-	var _fingerDirection = function(frame) {
+	var _fingerDirection = function(frame, fingerIndex) {
 		return {
-			x : frame.pointables[0].direction[0],
-			y : frame.pointables[0].direction[1],
-			z : frame.pointables[0].direction[2]
+			x : frame.pointables[fingerIndex].direction[0],
+			y : frame.pointables[fingerIndex].direction[1],
+			z : frame.pointables[fingerIndex].direction[2]
 		};
 	};
 
-	var _fingerAngleY = function(frame) {
-		return _vectorAngle(_palmNormal(frame), _fingerDirection(frame));
+	var _fingerAngleY = function(frame, fingerIndex) {
+		return _vectorAngle(_palmNormal(frame, fingerIndex), _fingerDirection(frame, fingerIndex));
 	};
 
-	var _fingerAngleX = function(frame) {
-		return _vectorAngle(_palmDirection(frame), _fingerDirection(frame));
+	var _fingerAngleX = function(frame, fingerIndex) {
+		return _vectorAngle(_palmDirection(frame, fingerIndex), _fingerDirection(frame, fingerIndex));
 	};
 
-	var _deltaHandFinger = function(frame) {
+	var _deltaHandFinger = function(frame, fingerIndex) {
 		return {
-			x : _palmPosition(frame).x - _fingerPosition(frame).x,
-			y : _palmPosition(frame).y - _fingerPosition(frame).y,
-			z : _palmPosition(frame).z - _fingerPosition(frame).z
+			x : _palmPosition(frame, fingerIndex).x - _fingerPosition(frame, fingerIndex).x,
+			y : _palmPosition(frame, fingerIndex).y - _fingerPosition(frame, fingerIndex).y,
+			z : _palmPosition(frame, fingerIndex).z - _fingerPosition(frame, fingerIndex).z
 		};
 	};
-
+	console.log(1);
 	if (_isValid(this.frame)) {
 		this.valid = true;
-		this.palmPosition = _palmPosition(this.frame);
-		this.palmDirection = _palmDirection(this.frame);
-		this.palmNormal = _palmNormal(this.frame);
-		this.fingerPosition = _fingerPosition(this.frame);
-		this.fingerDirection = _fingerDirection(this.frame);
-		this.fingerAngleY = _fingerAngleY(this.frame);
-		this.fingerAngleX = _fingerAngleX(this.frame);
-		this.deltaHandFinger = _deltaHandFinger(this.frame);
+		this.fingerAngleX = new Array(5);
+		this.fingerAngleY = new Array(5);
+		this.deltaHandFinger = new Array(5);
+		console.log(11);
+		for(var fingerIndex=0; fingerIndex < this.frame.pointables.length; fingerIndex++)
+		{
+			this.fingerAngleX[fingerIndex] = _deltaHandFinger(this.frame, fingerIndex).y * 2.8;
+			console.log(this.fingerAngleX[fingerIndex]);
+			console.log(2);
+			// this.fingerAngleY[fingerIndex] = _fingerAngleY(this.frame, fingerIndex);
+			// this.deltaHandFinger[fingerIndex] = _deltaHandFinger(this.frame, fingerIndex);
+		}
 	}
 	else {
 		this.valid = false;
