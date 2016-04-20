@@ -1,0 +1,26 @@
+{
+  "name": "FrameworkCSS",
+  "version": "0.0.1",
+  "author": "Tfrere thibaud",
+  "license": "MIT",
+  "private": true,
+  "dependencies": {
+    "body-parser": "^1.14.1",
+    "fb": "^1.0.2"
+  },
+  "main": "server.js",
+  "scripts": {},
+  "config": {
+    "buildDir": "./build",
+    "devHost": "localhost",
+    "devPort": 9200,
+    "aws": {
+      "s3": {
+        "bucket": "s3://board.winckell.com/"
+      }
+    }
+  },
+  "engines": {
+    "node": ">=5.0.0"
+  }
+}
