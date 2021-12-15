@@ -1,0 +1,16 @@
+{
+  "name": "hand-on-leap",
+  "version": "0.0.1",
+  "description": "A hand-on-leap",
+  "repository": "https://github.com/tfrere/robot-repo",
+  "license": "MIT",
+  "type": "module",
+  "dependencies": {
+    "cylon": "^1.3.0",
+    "cylon-firmata": "^0.24.0",
+    "cylon-gpio": "^0.30.1",
+    "cylon-i2c": "^0.26.1",
+    "cylon-leapmotion": "^0.21.0"
+  },
+  "devDependencies": {}
+}
